@@ -41,7 +41,9 @@ jobs:
         grep "image: " TektonCD-Pipelines.yaml | cut -f 2,3 -d ":" | cut -f 1 -d "@" > TektonCD-Pipelines-image.txt
         grep "git-image" TektonCD-Pipelines.yaml | sed -e "s#,#\n#g" -e 's/"//g' | grep "gcr.io" | cut -f 1 -d "@" >> TektonCD-Pipelines-image.txt
         for i in `cat TektonCD-Pipelines-image.txt`;do
-          echo  skopeo copy --all docker://${i} docker://${DOCKER_USERHUB}${i##*/}
+          echo  skopeo copy --all docker://${i} docker://${DOCKER_USERHUB}${i##*/} >> target-images
           sed -i "s#${i}#${DOCKER_USERHUB}${i##*/}#g" TektonCD-Pipelines.yaml
         done
+        chmod 777 target-images && source ./target-images
+        cat TektonCD-Pipelines.yaml
         
