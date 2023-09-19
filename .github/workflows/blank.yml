@@ -35,15 +35,16 @@ jobs:
         #!/usr/bin/env bash
         #skopeo copy docker://gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:latest docker://waitplay/tektoncd-pipeline-cmd-git-init:latest
         #skopeo copy docker://gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.11.1 docker://waitplay/tektoncd-pipeline-cmd-imagedigestexporter:v0.11.1
-
-        curl -L  https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml -o TektonCD-Pipelines.yaml
-        DOCKER_USERHUB=waitplay/tektoncd-pipeline-core-
-        grep "image: " TektonCD-Pipelines.yaml | cut -f 2,3 -d ":" | cut -f 1 -d "@" > TektonCD-Pipelines-image.txt
-        grep "git-image" TektonCD-Pipelines.yaml | sed -e "s#,#\n#g" -e 's/"//g' | grep "gcr.io" | cut -f 1 -d "@" >> TektonCD-Pipelines-image.txt
-        for i in `cat TektonCD-Pipelines-image.txt`;do
-          echo  skopeo copy --all docker://${i} docker://${DOCKER_USERHUB}${i##*/} >> target-images
-          sed -i "s#${i}#${DOCKER_USERHUB}${i##*/}#g" TektonCD-Pipelines.yaml
-        done
-        chmod 777 target-images && source ./target-images
-        cat TektonCD-Pipelines.yaml
+        skopeo copy docker://gcr.io/kaniko-project/executor:v1.5.1 docker://waitplay/kaniko-project-executor:1.5.1
+        
+        # curl -L  https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml -o TektonCD-Pipelines.yaml
+        # DOCKER_USERHUB=waitplay/tektoncd-pipeline-core-
+        # grep "image: " TektonCD-Pipelines.yaml | cut -f 2,3 -d ":" | cut -f 1 -d "@" > TektonCD-Pipelines-image.txt
+        # grep "git-image" TektonCD-Pipelines.yaml | sed -e "s#,#\n#g" -e 's/"//g' | grep "gcr.io" | cut -f 1 -d "@" >> TektonCD-Pipelines-image.txt
+        # for i in `cat TektonCD-Pipelines-image.txt`;do
+        #   echo  skopeo copy --all docker://${i} docker://${DOCKER_USERHUB}${i##*/} >> target-images
+        #   sed -i "s#${i}#${DOCKER_USERHUB}${i##*/}#g" TektonCD-Pipelines.yaml
+        # done
+        # chmod 777 target-images && source ./target-images
+        # cat TektonCD-Pipelines.yaml
         
