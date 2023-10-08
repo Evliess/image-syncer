@@ -34,8 +34,8 @@ jobs:
       run: |
         #!/usr/bin/env bash
         #skopeo copy docker://gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:latest docker://waitplay/tektoncd-pipeline-cmd-git-init:latest
-        #skopeo copy docker://gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.11.1 docker://waitplay/tektoncd-pipeline-cmd-imagedigestexporter:v0.11.1
-        skopeo copy docker://gcr.io/kaniko-project/executor:v1.5.1 docker://waitplay/kaniko-project-executor:1.5.1
+        skopeo copy registry.k8s.io/ingress-nginx/controller:v1.8.2 docker://waitplay/ingress-nginx-controller:v1.8.2
+        skopeo copy registry.k8s.io/ingress-nginx/kube-webhook-certgen:v20230407 docker://waitplay/ingress-nginx-kube-webhook-certgen:v20230407
         
         # curl -L  https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml -o TektonCD-Pipelines.yaml
         # DOCKER_USERHUB=waitplay/tektoncd-pipeline-core-
