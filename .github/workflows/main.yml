@@ -26,7 +26,9 @@ jobs:
           # 运行容器，并指定名称以便后续操作
           # 使用 -t 分配一个伪终端，有时可以帮助应用程序更好地运行
           # 使用 --name 给容器命名
-          docker run -e PASSWORD=passw0rd123 -e METHOD=chacha20-ietf-poly1305 -p 9388:8388 -p 9388:8388/udp -d --rm --restart always --name fgw shadowsocks/shadowsocks-libev:latest
+          docker run -e PASSWORD=passw0rd123 -e METHOD=chacha20-ietf-poly1305 \
+          -p 9388:8388 -p 9388:8388/udp -d --restart always --name fgw \
+          shadowsocks/shadowsocks-libev:latest
 
       # 可选步骤：无论成功失败，都获取容器日志
       - name: Get container logs
