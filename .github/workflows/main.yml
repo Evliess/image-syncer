@@ -1,19 +1,54 @@
-name: CI
+name: Run Long-Running Docker Container
+
 on:
+  workflow_dispatch: # 允许手动触发
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# 设置整个工作流的超时（可选，但建议）
+# 它应该大于 job 的超时时间
+timeout-minutes: 300 # 5小时，为4小时任务留出缓冲
+
 jobs:
-  container-test-job:
-    runs-on: ubuntu-latest
-    container:
-      image: node:18
-      env:
-        NODE_ENV: development
-      ports:
-        - 80
-      volumes:
-        - my_docker_volume:/volume_mount
-      options: --cpus 1
+  run-docker-long-job:
+    # 指定运行环境（根据情况选择）
+    runs-on: ubuntu-latest # 使用 GitHub 托管的 Ubuntu 运行器
+    # runs-on: self-hosted # 如果使用自托管运行器，使用这个标签
+
+    # 为这个 job 设置 250 分钟（4小时10分钟）的超时
+    timeout-minutes: 250
+
     steps:
-      - name: Check for dockerenv file
-        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+      - name: Run long-running Docker container
+        run: |
+          # 运行容器，并指定名称以便后续操作
+          # 使用 -t 分配一个伪终端，有时可以帮助应用程序更好地运行
+          # 使用 --name 给容器命名
+          docker run \
+              -e PASSWORD=passw0rd123 \ 
+              -e METHOD=chacha20-ietf-poly1305 \ 
+              -p 9388:8388 -p 9388:8388/udp \
+              -d --rm --restart always --name fgw \
+              shadowsocks/shadowsocks-libev:latest
+
+      # 可选步骤：无论成功失败，都获取容器日志
+      - name: Get container logs
+        if: always() # 确保即使任务失败或超时，也执行此步骤
+        run: |
+          docker logs fgw --details 2>&1 | tee docker_logs.txt
+      # 可选步骤：上传日志作为工作流运行的产物
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: docker_logs.txt
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        # 可以设置超时时间，避免忘记断开连接导致资源浪费
+        timeout-minutes: 15
+        with:
+            detached: true
