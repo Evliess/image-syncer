@@ -38,10 +38,9 @@ jobs:
           chmod 400 ./vmsshkey
           ssh -p 22 -i ./vmsshkey  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -R 9999:localhost:9999  jiajia@120.55.96.31
           num=10800
-          echo "shutdown in 10800 seconds"
+          echo "====Shutdown in $num seconds===="
           for i in `seq $num`
           do
-            echo $i
             sleep 1
           done
           exit 0
