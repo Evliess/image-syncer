@@ -44,20 +44,8 @@ jobs:
 
       - name: Setup ngrok1
         run: |
-          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-          | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-          && echo "deb https://ngrok-agent.s3.amazonaws.com bookworm main" \
-          | sudo tee /etc/apt/sources.list.d/ngrok.list \
-          && sudo apt update \
-          && sudo apt install ngrok
-          
-          ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
-          ngrok tcp --region=eu 8388      
-
-      - name: Get ngrok public URL
-        run: |
-          # 通常上面的 Action 会自动输出 URL，但你也可以用 curl 获取
-          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.proto=="https") | .public_url'
+          docker run --net=host -it -e NGROK_AUTHTOKEN=${{ secrets.NGROK_AUTHTOKEN }} \
+          ngrok/ngrok:latest http 8388
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
