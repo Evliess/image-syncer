@@ -9,7 +9,7 @@ on:
 
 # 设置整个工作流的超时（可选，但建议）
 # 它应该大于 job 的超时时间
-timeout-minutes: 300 # 5小时，为4小时任务留出缓冲
+#timeout-minutes: 300 # 5小时，为4小时任务留出缓冲
 
 jobs:
   run-docker-long-job:
