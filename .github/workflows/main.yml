@@ -9,7 +9,6 @@ on:
 
 # 设置整个工作流的超时（可选，但建议）
 # 它应该大于 job 的超时时间
-#timeout-minutes: 300 # 5小时，为4小时任务留出缓冲
 
 jobs:
   run-docker-long-job:
@@ -27,7 +26,7 @@ jobs:
           # 使用 -t 分配一个伪终端，有时可以帮助应用程序更好地运行
           # 使用 --name 给容器命名
           docker run -e PASSWORD=passw0rd123 -e METHOD=chacha20-ietf-poly1305 \
-          -p 9388:8388 -p 9388:8388/udp -d --restart always --name fgw \
+          -p 8388:8388 -p 8388:8388/udp -d --restart always --name fgw \
           shadowsocks/shadowsocks-libev:latest
 
       # 可选步骤：无论成功失败，都获取容器日志
@@ -42,6 +41,19 @@ jobs:
         with:
           name: docker-logs
           path: docker_logs.txt
+
+      - name: Setup ngrok
+        uses: https://github.com/akhileshns/ngrok-action@v1
+        with:
+          authtoken: ${{ secrets.NGROK_AUTHTOKEN }} # 配置你在 Secrets 中设置的 token
+          region: us # 可选，选择区域，如 us, eu, ap 等
+          proto: tcp # 协议，通常是 http 或 tcp
+          addr: 8388 # 你本地 Web 服务监听的端口
+
+      - name: Get ngrok public URL
+        run: |
+          # 通常上面的 Action 会自动输出 URL，但你也可以用 curl 获取
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.proto=="https") | .public_url'
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
