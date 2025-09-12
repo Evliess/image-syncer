@@ -42,13 +42,17 @@ jobs:
           name: docker-logs
           path: docker_logs.txt
 
-      - name: Setup ngrok
-        uses: https://github.com/akhileshns/ngrok-action@v1
-        with:
-          authtoken: ${{ secrets.NGROK_AUTHTOKEN }} # 配置你在 Secrets 中设置的 token
-          region: us # 可选，选择区域，如 us, eu, ap 等
-          proto: tcp # 协议，通常是 http 或 tcp
-          addr: 8388 # 你本地 Web 服务监听的端口
+      - name: Setup ngrok1
+        run: |
+          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+          | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+          && echo "deb https://ngrok-agent.s3.amazonaws.com bookworm main" \
+          | sudo tee /etc/apt/sources.list.d/ngrok.list \
+          && sudo apt update \
+          && sudo apt install ngrok
+          
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+          ngrok tcp --region=eu 8388      
 
       - name: Get ngrok public URL
         run: |
