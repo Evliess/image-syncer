@@ -41,7 +41,8 @@ jobs:
           echo "====Shutdown in $num seconds===="
           for i in `seq $num`
           do
-            sleep 1
+            echo $i
+            sleep 10
           done
           exit 0
 
