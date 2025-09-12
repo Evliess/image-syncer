@@ -1,3 +1,10 @@
+## 1. 在云服务器上生成公钥与私钥
+### 1.1 ssh-keygen -t rsa -f ./vmsshkey -P ''
+### 1.2 将公钥添加到虚拟机认证文件中，使私钥可以远程SSH免密登录
+### 1.2 cat vmsshkey.pub >> ~/.ssh/authorized_keys
+### 1.2 chmod 600 ~/.ssh/authorized_keys
+### 1.3 将私钥文件添加到Github的 Secret 中
+
 name: Run Long-Running Docker Container
 
 on:
@@ -22,31 +29,21 @@ jobs:
     steps:
       - name: Run long-running Docker container
         run: |
-          # 运行容器，并指定名称以便后续操作
-          # 使用 -t 分配一个伪终端，有时可以帮助应用程序更好地运行
-          # 使用 --name 给容器命名
-          docker run -e PASSWORD=passw0rd123 -e METHOD=chacha20-ietf-poly1305 \
-          -p 8388:8388 -p 8388:8388/udp -d --restart always --name fgw \
-          shadowsocks/shadowsocks-libev:latest
-
-      # 可选步骤：无论成功失败，都获取容器日志
-      - name: Get container logs
-        if: always() # 确保即使任务失败或超时，也执行此步骤
-        run: |
-          docker logs fgw --details 2>&1 | tee docker_logs.txt
-      # 可选步骤：上传日志作为工作流运行的产物
-      - name: Upload logs artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-logs
-          path: docker_logs.txt
-
-      
-
-      # - name: Get ngrok public URL
-      #   run: |
-      #     ssh -R 8388:localhost:8388 serveo.net	
+          ssh-keygen  -t rsa -f ./newsshkey -P ''
+          mkdir -p  ~/.ssh
+          cat newsshkey.pub >> ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
+          ssh  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -i ./newsshkey -D 9999 localhost 
+          echo "${{ secrets.VM_SSH }}" > ./vmsshkey
+          chmod 400 ./vmsshkey
+          ssh -p 22 -i ./vmsshkey  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -R 9999:localhost:9999  jiajia@120.55.96.31
+          num=3600
+          for i in `seq $num`
+          do
+            echo $i
+            sleep 1
+          done
+          exit 0
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
