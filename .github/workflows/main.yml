@@ -42,19 +42,22 @@ jobs:
           name: docker-logs
           path: docker_logs.txt
 
-      - name: curl IP
+      - name: Setup ngrok1
         run: |
-          curl https://ipinfo.io/ip
+          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+          | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+          && echo "deb https://ngrok-agent.s3.amazonaws.com bookworm main" \
+          | sudo tee /etc/apt/sources.list.d/ngrok.list \
+          && sudo apt update \
+          && sudo apt install ngrok
+          
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+          ngrok tcp --region=eu 8388      
 
-      - name: Setup ngrok
+      - name: Get ngrok public URL
         run: |
-          docker run --net=host -e NGROK_AUTHTOKEN=${{ secrets.NGROK_AUTHTOKEN }} \
-          ngrok/ngrok:latest http 8388
-
-      - name: Get ngrok logs
-        if: always() # 确保即使任务失败或超时，也执行此步骤
-        run: |
-          docker logs fgw --details 2>&1 | tee ngrok_logs.txt
+          # 通常上面的 Action 会自动输出 URL，但你也可以用 curl 获取
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.proto=="https") | .public_url'
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
