@@ -46,15 +46,15 @@ jobs:
         run: |
           curl https://ipinfo.io/ip
 
-#      - name: Setup ngrok
-#        run: |
-#          docker run --net=host -e NGROK_AUTHTOKEN=${{ secrets.NGROK_AUTHTOKEN }} \
-#          ngrok/ngrok:latest http 8388
-#
-#      - name: Get ngrok logs
-#        if: always() # 确保即使任务失败或超时，也执行此步骤
-#        run: |
-#          docker logs fgw --details 2>&1 | tee ngrok_logs.txt
+      - name: Setup ngrok
+        run: |
+          docker run --net=host -e NGROK_AUTHTOKEN=${{ secrets.NGROK_AUTHTOKEN }} \
+          ngrok/ngrok:latest http 8388
+
+      - name: Get ngrok logs
+        if: always() # 确保即使任务失败或超时，也执行此步骤
+        run: |
+          docker logs fgw --details 2>&1 | tee ngrok_logs.txt
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
