@@ -44,9 +44,9 @@ jobs:
 
       
 
-      - name: Get ngrok public URL
-        run: |
-          ssh -R 8388:localhost:8388 serveo.net	
+      # - name: Get ngrok public URL
+      #   run: |
+      #     ssh -R 8388:localhost:8388 serveo.net	
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
