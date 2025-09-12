@@ -52,7 +52,7 @@ jobs:
           && sudo apt install ngrok
           
           ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
-          ngrok tcp --region=eu 8388      
+          ngrok udp 8388      
 
       - name: Get ngrok public URL
         run: |
