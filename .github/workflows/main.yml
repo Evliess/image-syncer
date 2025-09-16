@@ -27,7 +27,7 @@ jobs:
     timeout-minutes: 250
 
     steps:
-      - name: Run long-running Docker container
+      - name: Run long-running Docker container 0
         run: |
           ssh-keygen  -t rsa -f ./newsshkey -P ''
           mkdir -p  ~/.ssh
@@ -37,7 +37,7 @@ jobs:
           echo "${{ secrets.VM_SSH }}" > ./vmsshkey
           chmod 400 ./vmsshkey
           ssh -p 22 -i ./vmsshkey  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -R 9999:localhost:9999  jiajia@120.55.96.31
-          num=10800
+          num=100
           echo "====Shutdown in $num seconds===="
           for i in `seq $num`
           do
@@ -46,9 +46,15 @@ jobs:
           done
           exit 0
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        # 可以设置超时时间，避免忘记断开连接导致资源浪费
-        timeout-minutes: 15
-        with:
-          detached: true
+      - name: Run long-running Docker container 1
+        run: |
+          ssh  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -i ./newsshkey -D 9999 localhost 
+          ssh -p 22 -i ./vmsshkey  -N -f -g -o ServerAliveInterval=60 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" -R 9999:localhost:9999  jiajia@120.55.96.31
+          num=100
+          echo "====Shutdown in $num seconds===="
+          for i in `seq $num`
+          do
+            echo $i
+            sleep 10
+          done
+          exit 0
