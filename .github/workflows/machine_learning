@@ -1,5 +1,9 @@
 on:
-  workflow_dispatch:
+  workflow_dispatch: # 允许手动触发
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   jupyter:
